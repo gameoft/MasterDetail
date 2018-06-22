@@ -1,0 +1,164 @@
+﻿@model MasterDetail.Models.ApplicationUser
+
+@{
+    ViewBag.Title = "Edit";
+}
+
+<h2>@ViewBag.Title</h2>
+
+<div class="form-horizontal" style="border: 1px solid">
+
+    <label class="control-label col-md-2">Full Name</label>
+    <div class="col-md-10">
+        <p class="form-control-static">@Model.FullName&nbsp;</p>
+    </div>
+
+    <label class="control-label col-md-2">User Name</label>
+    <div class="col-md-10">
+        <p class="form-control-static">@Model.UserName&nbsp;</p>
+    </div>
+
+    <label class="control-label col-md-2">Address</label>
+    <div class="col-md-10" >
+        <p class="form-control-static">@Html.Raw(Model.AddressBlock)&nbsp;</p>
+    </div>
+
+    <div class="row">
+        <div class="col-md-2"><input type="checkbox" checked="@Model.TwoFactorEnabled" disabled /></div>
+        <div class="col-md-10">Two-Factor Enabled</div>
+    </div>
+    
+
+    <label class="control-label col-md-2">EMail</label>
+    <div class="col-md-10">
+        <p class="form-control-static">@Model.Email</p>
+    </div>
+
+    <div class="row">
+        <div class="col-md-2"><input type="checkbox" checked="@Model.EmailConfirmed" disabled /></div>
+        <div class="col-md-10"> Email confirmed</div>
+    </div>
+        
+
+        @*<input type="checkbox" checked="@Model.EmailConfirmed" disabled />
+            <div class="checkbox disabled col-md-offset-2">
+                <label class="control-label ">
+
+                    Email confirmed
+                </label>
+            </div>*@
+
+        <label class="control-label col-md-2">Phone Number</label>
+        <div class="col-md-10">
+            <p class="form-control-static">@Model.PhoneNumber&nbsp;</p>
+        </div>
+
+        @*<input type="checkbox" checked="@Model.PhoneNumberConfirmed" disabled />
+            <div class="checkbox disabled col-md-offset-2">
+                <label class="control-label ">
+                    Phone Number confirmed
+                </label>
+            </div>*@
+
+    <div class="row">
+        <div class="col-md-2"><input type="checkbox" checked="@Model.PhoneNumberConfirmed" disabled /></div>
+        <div class="col-md-10"> Phone Number confirmed</div>
+    </div>
+        
+
+        @* STATUS *@
+        <div>
+            <label class="control-label col-md-2">Status</label>
+        </div>
+
+
+        @* cannot lockout *@
+        @if (!Model.LockoutEnabled)
+        {
+            <div class="col-md-10">
+                <p class="form-control-static">This user cannot be locked out of his account.</p>
+            </div>
+        }
+
+        @*Unlocked*@
+        @if (Model.LockoutEnabled && (Model.LockoutEndDateUtc <= DateTime.Now || Model.LockoutEndDateUtc == null))
+        {
+            <div class="col-md-10">
+                <p class="form-control-static">Unlocked</p>
+            </div>
+
+            <div class="col-md-offset-2">
+                @using (Html.BeginForm("LockAccount", "ApplicationUsers", FormMethod.Post, new { @class = "form-horizontal", role = "form" }))
+                {
+                    @Html.AntiForgeryToken()
+                    @Html.ValidationSummary()
+                    @Html.HiddenFor(model => model.Id)
+                    <input type="submit" value="Lock Account" class="btn btn-danger" />
+                }
+            </div>
+
+            <label class="control-label col-md-2">Access Failed Count</label>
+            <div class="col-md-10">
+                <p class="form-control-static">@Model.AccessFailedCount</p>
+            </div>
+
+        }
+
+
+        @*Locked*@
+        @if (Model.LockoutEnabled && (Model.LockoutEndDateUtc > DateTime.Now))
+        {
+            <div class="col-md-10">
+                <p class="form-control-static">Locked until @Model.LockoutEndDateUtc (UTC)</p>
+            </div>
+
+            <div class="col-md-offset-2">
+                @using (Html.BeginForm("UnlockAccount", "ApplicationUsers", FormMethod.Post, new { @class = "form-horizontal", role = "form" }))
+                {
+                    @Html.AntiForgeryToken()
+                    @Html.ValidationSummary()
+                    @Html.HiddenFor(model => model.Id)
+                    <input type="submit" value="Unlock Account" class="btn btn-success" />
+                }
+            </div>
+
+        }
+
+        @*Roles*@
+        @using (Html.BeginForm())
+        {
+            @Html.AntiForgeryToken()
+            @Html.ValidationSummary()
+            @Html.HiddenFor(model => model.Id)
+
+            <div class="form-group">
+                @Html.Label("Roles", new { @class = "control-label col-md-2" })
+                <span class="col-md-10">
+                    @foreach (var item in Model.RolesList)
+                    {
+                        <input type="checkbox" name="RolesSelectedOnView" value="@item.Value" checked="@item.Selected" class="checkbox-inline" />
+                        @Html.Label(item.Value, new { @class = "control-label" }) <br />
+                    }
+                </span>
+            </div>
+
+            <div class="form-group">
+                <div class="col-md-offset-2 col-md-10">
+                    <input type="submit" value="Save" class="btn btn-primary" />
+                </div>
+            </div>
+
+        }
+
+
+
+
+    </div>
+
+<div style="border: 1px dashed">
+    @Html.ActionLink("Back to List", "Index")
+</div>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}
